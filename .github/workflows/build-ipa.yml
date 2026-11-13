@@ -8,6 +8,12 @@ on:
 permissions:
   contents: write   # needed so the release job can publish/update releases
 
+# Cancel a superseded run (e.g. you push twice in a row) instead of letting
+# both queue/build — saves real wall-clock time and runner minutes.
+concurrency:
+  group: build-ipa-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: macos-15
@@ -16,14 +22,36 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # Skip the step entirely if macos-15's default Xcode is already what
+      # you want — only keep this if you truly need a pinned version.
       - name: Select Xcode
         run: sudo xcode-select -s /Applications/Xcode_16.app/Contents/Developer
 
+      - name: Cache Homebrew (XcodeGen)
+        id: brew-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/Library/Caches/Homebrew
+            /opt/homebrew/Cellar/xcodegen
+            /opt/homebrew/bin/xcodegen
+          key: brew-xcodegen-${{ runner.os }}-${{ runner.arch }}
+
       - name: Install XcodeGen
-        run: brew install xcodegen
+        run: command -v xcodegen >/dev/null 2>&1 || brew install xcodegen
 
       - name: Generate Xcode project
         run: xcodegen generate --spec project.yml
+
+      - name: Cache DerivedData
+        uses: actions/cache@v4
+        with:
+          path: build
+          # Busts whenever any Swift/plist/project source changes;
+          # falls back to the most recent cache otherwise for partial reuse.
+          key: deriveddata-${{ runner.os }}-${{ hashFiles('Sources/**', 'project.yml') }}
+          restore-keys: |
+            deriveddata-${{ runner.os }}-
 
       - name: Build (unsigned, for device)
         run: |
@@ -37,7 +65,8 @@ jobs:
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" \
             ARCHS=arm64 \
-            ONLY_ACTIVE_ARCH=NO
+            ONLY_ACTIVE_ARCH=YES \
+            COMPILER_INDEX_STORE_ENABLE=NO
 
       - name: Package IPA
         run: |
