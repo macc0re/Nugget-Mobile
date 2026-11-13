@@ -1,48 +1,60 @@
 import SwiftUI
 
 struct ToolsView: View {
-    @EnvironmentObject var state: AppState
-
     var body: some View {
         NavigationStack {
             List {
                 Section("SPARSERESTORE TWEAKS") {
-                    NavigationLink {
+                    toolLink("Mobile Gestalt", icon: "iphone.gen3") {
                         MobileGestaltView()
-                    } label: {
-                        Label("Mobile Gestalt", systemImage: "iphone.gen3")
                     }
-                    NavigationLink {
+                    toolLink("Feature Flags", icon: "flag") {
                         FeatureFlagsView()
-                    } label: {
-                        Label("Feature Flags", systemImage: "flag")
                     }
-                    NavigationLink {
+                    toolLink("Eligibility", icon: "key.vertical") {
                         EligibilityView()
-                    } label: {
-                        Label("Eligibility", systemImage: "key")
                     }
-                    NavigationLink {
+                    toolLink("SpringBoard", icon: "rectangle.on.rectangle") {
                         SpringBoardTweaksView()
-                    } label: {
-                        Label("SpringBoard", systemImage: "square.on.square")
                     }
-                    NavigationLink {
+                    toolLink("Internal Options", icon: "internaldrive") {
                         InternalOptionsView()
-                    } label: {
-                        Label("Internal Options", systemImage: "internaldrive")
                     }
                 }
 
-                Section("DOMAIN RESTORE TWEAKS (REQUIRES SKIP SETUP)") {
-                    NavigationLink {
+                Section {
+                    toolLink("Status Bar", icon: "wifi") {
                         StatusBarView()
-                    } label: {
-                        Label("Status Bar", systemImage: "wifi")
                     }
+                } header: {
+                    Text("DOMAIN RESTORE TWEAKS")
+                } footer: {
+                    Text("Requires Skip Setup.")
                 }
             }
+            .nuggetListStyle()
             .navigationTitle("Tools")
+            .navigationBarTitleDisplayMode(.large)
+        }
+    }
+
+    private func toolLink<Destination: View>(
+        _ title: String,
+        icon: String,
+        @ViewBuilder destination: () -> Destination
+    ) -> some View {
+        NavigationLink(destination: destination()) {
+            Label {
+                Text(title)
+                    .font(.body.weight(.semibold))
+                    .foregroundStyle(.primary)
+            } icon: {
+                Image(systemName: icon)
+                    .font(.title3.weight(.semibold))
+                    .foregroundStyle(NuggetStyle.accent)
+                    .frame(width: 34)
+            }
+            .padding(.vertical, 5)
         }
     }
 }
