@@ -1,73 +1,76 @@
 import SwiftUI
 
 struct HomeView: View {
-    @EnvironmentObject var state: AppState
+    @EnvironmentObject private var state: AppState
 
     var body: some View {
         NavigationStack {
             List {
                 Section {
-                    Label("VERSION 2.0.1 (RELEASE)", systemImage: "info.circle")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
+                    Label("VERSION 2.0.1 (RELEASE)", systemImage: "info.circle.fill")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(NuggetStyle.muted)
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
                 }
-                .listRowBackground(Color.clear)
 
                 Section {
-                    actionRow(title: "Apply Tweaks", tint: .blue) {
+                    actionRow(title: "Apply Tweaks", tint: NuggetStyle.accent) {
                         state.applyTweaks()
                     }
+
                     actionRow(title: "Remove All Tweaks", tint: .red) {
                         state.removeAllTweaks()
                     }
-
-                    Toggle("Auto reboot after apply", isOn: $state.autoRebootAfterApply)
                 } header: {
                     Label("TWEAK OPTIONS", systemImage: "hammer")
                 }
 
                 Section {
-                    Text("Based on the original Nugget project by leminlimez.")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Nugget Mobile")
+                            .font(.headline)
+                        Text("A mobile interface for device customization.")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                        Text("Based on the original Nugget project by leminlimez.")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                    }
+                    .padding(.vertical, 6)
                 } header: {
                     Label("CREDITS", systemImage: "wrench.and.screwdriver")
                 }
             }
+            .nuggetListStyle()
             .navigationTitle("Nugget")
+            .navigationBarTitleDisplayMode(.large)
             .task { await state.refresh() }
-            .overlay {
-                if state.isApplying {
-                    ProgressView().controlSize(.large)
-                }
-            }
-            .alert("Error", isPresented: .constant(state.errorMessage != nil)) {
-                Button("OK") { state.errorMessage = nil }
+            .alert("Nugget", isPresented: Binding(
+                get: { state.noticeMessage != nil },
+                set: { if !$0 { state.noticeMessage = nil } }
+            )) {
+                Button("OK") { state.noticeMessage = nil }
             } message: {
-                Text(state.errorMessage ?? "")
+                Text(state.noticeMessage ?? "")
             }
         }
     }
 
-    @ViewBuilder
     private func actionRow(title: String, tint: Color, action: @escaping () -> Void) -> some View {
-        HStack {
+        HStack(spacing: 12) {
             Button(action: action) {
                 Text(title)
-                    .frame(maxWidth: .infinity)
-                    .fontWeight(.semibold)
+                    .font(.title3.weight(.semibold))
+                    .frame(maxWidth: .infinity, minHeight: 68)
+                    .foregroundStyle(tint)
+                    .background(tint.opacity(0.20), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
             }
-            .buttonStyle(.borderedProminent)
-            .tint(tint.opacity(0.25))
-            .foregroundStyle(tint)
-
-            Button {
-                // Hook up an info sheet/popover here if you want the (i) detail text.
-            } label: {
-                Image(systemName: "info.circle")
-            }
-            .buttonStyle(.bordered)
+            .buttonStyle(.plain)
         }
+        .padding(.vertical, 2)
+        .listRowBackground(Color.clear)
+        .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
         .listRowSeparator(.hidden)
     }
 }
