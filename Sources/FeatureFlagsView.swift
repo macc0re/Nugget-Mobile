@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct FeatureFlagsView: View {
-    @EnvironmentObject var state: AppState
+    @EnvironmentObject private var state: AppState
 
     var body: some View {
         List {
@@ -12,11 +12,10 @@ struct FeatureFlagsView: View {
                 Toggle("Enable Apple Intelligence", isOn: state.binding(for: "flags.appleIntelligence"))
             }
         }
+        .nuggetListStyle()
         .navigationTitle("Feature Flags")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolDetailToolbar(isVerified: state.gestaltVerified)
-        }
+        .navigationBarTitleDisplayMode(.large)
+        .toolbar { ToolDetailToolbar(isVerified: state.gestaltVerified) }
     }
 }
 
