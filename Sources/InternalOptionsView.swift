@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct InternalOptionsView: View {
-    @EnvironmentObject var state: AppState
+    @EnvironmentObject private var state: AppState
 
     var body: some View {
         List {
@@ -22,11 +22,10 @@ struct InternalOptionsView: View {
                 Toggle("Show Notifications for System Pastes", isOn: state.binding(for: "internal.showPasteNotifications"))
             }
         }
+        .nuggetListStyle()
         .navigationTitle("Internal Options")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolDetailToolbar(isVerified: state.gestaltVerified)
-        }
+        .navigationBarTitleDisplayMode(.large)
+        .toolbar { ToolDetailToolbar(isVerified: state.gestaltVerified) }
     }
 }
 
