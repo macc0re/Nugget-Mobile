@@ -8,8 +8,8 @@ This uses the worse_query exploit to write to files outside of the intended rest
 Note: I am not responsible if your device bootloops, use this software with caution. Please back up your data before using!
 
 ## Credits
-- [JJTech](https://github.com/JJTech0130) for Sparserestore/[TrollRestore](https://github.com/JJTech0130/TrollRestore)
-- khanhduytran for [Sparsebox](https://github.com/khanhduytran0/SparseBox)
+- [forcequitOS](https://github.com/forcequitOS) for worse_query
+- frs0n for [GestaltEdit](https://github.com/frs0n/GestaltEdit)
 - [pymobiledevice3](https://github.com/doronz88/pymobiledevice3)
 - [disfordottie](https://x.com/disfordottie) for some global flag features
 - f1shy-dev for the old [AI Enabler](https://gist.github.com/f1shy-dev/23b4a78dc283edd30ae2b2e6429129b5#file-eligibility-plist)
