@@ -5,7 +5,8 @@ Unlock your device's full potential! Should work on all versions iOS 26 and late
 
 This uses the worse_query exploit to write to files outside of the intended restore location, like mobilegestalt.
 
-Note: I am not responsible if your device bootloops, use this software with caution. Please back up your data before using!
+> [!CAUTION]
+> I am not responsible if your device bootloops, use this software with caution. Please back up your data before using!
 
 ## Credits
 - [forcequitOS](https://github.com/forcequitOS) for worse_query
