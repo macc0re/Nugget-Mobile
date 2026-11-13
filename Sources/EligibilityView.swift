@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct EligibilityView: View {
-    @EnvironmentObject var state: AppState
+    @EnvironmentObject private var state: AppState
 
     var body: some View {
         List {
@@ -10,24 +10,18 @@ struct EligibilityView: View {
                 infoToggle("Spoof Device Model", id: "eligibility.spoofModel")
             }
         }
+        .nuggetListStyle()
         .navigationTitle("Eligibility")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolDetailToolbar(isVerified: state.gestaltVerified)
-        }
+        .navigationBarTitleDisplayMode(.large)
+        .toolbar { ToolDetailToolbar(isVerified: state.gestaltVerified) }
     }
 
-    @ViewBuilder
     private func infoToggle(_ title: String, id: String) -> some View {
-        HStack {
+        HStack(spacing: 12) {
             Toggle(title, isOn: state.binding(for: id))
-            Button {
-                // Hook up an info popover with the tweak's explanation here.
-            } label: {
-                Image(systemName: "info.circle")
-            }
-            .buttonStyle(.plain)
-            .foregroundStyle(.blue)
+            Image(systemName: "info.circle")
+                .font(.title3)
+                .foregroundStyle(NuggetStyle.accent)
         }
     }
 }
