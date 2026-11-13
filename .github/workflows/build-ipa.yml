@@ -1,0 +1,88 @@
+name: Build IPA
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch: {}
+
+permissions:
+  contents: write   # needed so the release job can publish/update releases
+
+jobs:
+  build:
+    runs-on: macos-15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_16.app/Contents/Developer
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        run: xcodegen generate --spec project.yml
+
+      - name: Build (unsigned, for device)
+        run: |
+          xcodebuild build \
+            -project NuggetUI.xcodeproj \
+            -scheme NuggetUI \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            ARCHS=arm64 \
+            ONLY_ACTIVE_ARCH=NO
+
+      - name: Package IPA
+        run: |
+          set -eu
+          APP_PATH="build/Build/Products/Release-iphoneos/NuggetUI.app"
+          mkdir -p Payload
+          cp -R "$APP_PATH" Payload/
+          zip -r -y NuggetUI-unsigned.ipa Payload
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: NuggetUI-unsigned-ipa
+          path: NuggetUI-unsigned.ipa
+          if-no-files-found: error
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest   # no need for a macOS runner just to publish a release
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Download IPA artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: NuggetUI-unsigned-ipa
+          path: dist
+
+      - name: Set release date
+        id: date
+        run: echo "today=$(date -u +%Y%m%d)" >> "$GITHUB_OUTPUT"
+
+      - name: Publish / update nightly release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: nightly
+          name: "Nightly Release @ ${{ steps.date.outputs.today }}"
+          commit: ${{ github.sha }}
+          prerelease: true
+          allowUpdates: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          makeLatest: false
+          body: |
+            This is a nightly release created automatically with GitHub Actions
+            workflow ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}.
+          artifacts: dist/NuggetUI-unsigned.ipa
+          token: ${{ secrets.GITHUB_TOKEN }}
