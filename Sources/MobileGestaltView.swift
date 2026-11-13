@@ -1,26 +1,50 @@
 import SwiftUI
 
 struct MobileGestaltView: View {
-    @EnvironmentObject var state: AppState
+    @EnvironmentObject private var state: AppState
 
     private let dynamicIslandOptions = [
-        "Default", "iPhone 16 Pro Dynamic Island", "iPhone 16 Pro Max Dynamic Island"
+        "Default",
+        "iPhone 14 Pro Dynamic Island",
+        "iPhone 14 Pro Max Dynamic Island",
+        "iPhone 16 Pro Dynamic Island",
+        "iPhone 16 Pro Max Dynamic Island"
     ]
+
+    @State private var dynamicIslandSelection = "Default"
+    @State private var deviceModelName = ""
 
     var body: some View {
         List {
             Section {
-                Picker("Gestures / Dynamic Island", selection: $dynamicIslandSelection) {
-                    ForEach(dynamicIslandOptions, id: \.self) { Text($0) }
+                HStack(spacing: 14) {
+                    Image(systemName: "iphone")
+                        .font(.title2)
+                        .foregroundStyle(NuggetStyle.accent)
+                        .frame(width: 34)
+
+                    Text("Gestures / Dynamic Island")
+                        .font(.body.weight(.semibold))
+
+                    Spacer(minLength: 8)
+
+                    Picker("Dynamic Island", selection: $dynamicIslandSelection) {
+                        ForEach(dynamicIslandOptions, id: \.self) { option in
+                            Text(option).tag(option)
+                        }
+                    }
+                    .labelsHidden()
+                    .tint(NuggetStyle.accent)
                 }
+                .padding(.vertical, 5)
 
                 Toggle("Fix rdar (modifies resolution)", isOn: state.binding(for: "gestalt.fixRdar"))
 
-                VStack(alignment: .leading, spacing: 6) {
+                VStack(alignment: .leading, spacing: 10) {
                     Toggle("Change Device Model Name", isOn: state.binding(for: "gestalt.changeModelName"))
-                    TextField("Device Model Name", text: .constant(""))
-                        .foregroundStyle(.secondary)
+                    TextField("Device Model Name", text: $deviceModelName)
                         .disabled(!(state.toggles["gestalt.changeModelName"] ?? false))
+                        .foregroundStyle(.secondary)
                 }
             }
 
@@ -34,8 +58,8 @@ struct MobileGestaltView: View {
             }
 
             Section {
-                warnedToggle("Enable Stage Manager Supported", warning: "risky on some devices, mainly phones", id: "gestalt.stageManager")
-                warnedToggle("Enable Medusa (iPad Multitasking)", warning: "may be risky on phones", id: "gestalt.medusa")
+                warnedToggle("Enable Stage Manager Supported", warning: "Risky on some devices, mainly phones", id: "gestalt.stageManager")
+                warnedToggle("Enable Medusa (iPad Multitasking)", warning: "May be risky on phones", id: "gestalt.medusa")
                 Toggle("Allow iPad Apps on iPhone", isOn: state.binding(for: "gestalt.ipadApps"))
                 Toggle("Disable Region Restrictions (ie. Shutter Sound)", isOn: state.binding(for: "gestalt.regionRestrictions"))
                 Toggle("Enable Apple Pencil", isOn: state.binding(for: "gestalt.applePencil"))
@@ -43,29 +67,25 @@ struct MobileGestaltView: View {
             }
 
             Section {
-                warnedToggle("Toggle Internal Storage", warning: "risky for some devices, mainly iPads", id: "gestalt.internalStorage")
+                warnedToggle("Toggle Internal Storage", warning: "Risky for some devices, mainly iPads", id: "gestalt.internalStorage")
                 Toggle("Set as Apple Internal Install (ie Metal HUD in any app)", isOn: state.binding(for: "gestalt.appleInternal"))
                 Toggle("Always On Display", isOn: state.binding(for: "gestalt.aod"))
             }
         }
+        .nuggetListStyle()
         .navigationTitle("Mobile Gestalt")
-        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarTitleDisplayMode(.large)
         .toolbar {
             ToolDetailToolbar(isVerified: state.gestaltVerified)
         }
     }
 
-    // Local state for the Dynamic Island picker; swap for a @State var if you
-    // don't want it round-tripping through the generic toggle store.
-    @State private var dynamicIslandSelection = "Default"
-
-    @ViewBuilder
     private func warnedToggle(_ title: String, warning: String, id: String) -> some View {
         Toggle(isOn: state.binding(for: id)) {
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: 3) {
                 Text(title)
-                Text("WARNING: \(warning)")
-                    .font(.caption2)
+                Text("WARNING: " + warning)
+                    .font(.caption)
                     .foregroundStyle(.orange)
             }
         }
