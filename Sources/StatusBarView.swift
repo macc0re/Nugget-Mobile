@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct StatusBarView: View {
-    @EnvironmentObject var state: AppState
+    @EnvironmentObject private var state: AppState
 
     var body: some View {
         List {
@@ -12,11 +12,10 @@ struct StatusBarView: View {
                 Text("Requires Skip Setup to apply via domain restore.")
             }
         }
+        .nuggetListStyle()
         .navigationTitle("Status Bar")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolDetailToolbar(isVerified: state.gestaltVerified)
-        }
+        .navigationBarTitleDisplayMode(.large)
+        .toolbar { ToolDetailToolbar(isVerified: state.gestaltVerified) }
     }
 }
 
