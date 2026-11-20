@@ -3,7 +3,7 @@
 # Nugget (mobile)
 Unlock your device's full potential! Should work on all versions iOS 26 - 27.3 developer beta 1
 
-This will not work on iOS 27.3 beta 1 or newer. Please do not make issues about this, it will not be fixed. You will have to use the [pc version of Nugget](https://github.com/leminlimez/Nugget) unless a fix comes in the future.
+This will not work on iOS 27.3 beta 2 or newer. Please do not make issues about this, it will not be fixed. You will have to use the [pc version of Nugget](https://github.com/leminlimez/Nugget) unless a fix comes in the future.
 
 ## Credits
 - [ForcequitOS](https://github.com/forcequitOS) for [worse_query](https://github.com/JJTech0130/TrollRestore)
